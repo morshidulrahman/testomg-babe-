@@ -4,11 +4,10 @@ import connectDb from "@/lib/ConnectDb";
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
-// Disable Next.js body parsing for this route
-export const config = {
-  api: {
-    bodyParser: false,
-  },
+// Use the new Route Handler configuration
+export const runtime = "nodejs";
+export const requestBody = {
+  type: "raw", // Ensure that the request body is raw
 };
 
 export async function POST(req) {
