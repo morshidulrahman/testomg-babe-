@@ -1,14 +1,24 @@
 import { stripe } from "@/lib/stripe";
 import { ObjectId } from "mongodb";
 import connectDb from "@/lib/ConnectDb";
+
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
+// Disable Next.js body parsing for this route
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export async function POST(req) {
+  // Use the custom buffer function to get the raw body
   const body = await buffer(req);
   const sig = req.headers.get("stripe-signature");
   let event;
 
   try {
+    // Verify the Stripe webhook signature
     event = stripe.webhooks.constructEvent(body, sig, WEBHOOK_SECRET);
   } catch (err) {
     console.error("Webhook signature verification failed.", err.message);
@@ -20,13 +30,13 @@ export async function POST(req) {
     const usersCollection = db.collection("users");
     const subscriptionsCollection = db.collection("payment");
 
+    // Handle the different event types
     switch (event.type) {
       case "checkout.session.completed":
+        // Retrieve the session from Stripe
         const session = await stripe.checkout.sessions.retrieve(
           event.data.object.id,
-          {
-            expand: ["line_items", "payment_intent"],
-          }
+          { expand: ["line_items", "payment_intent"] }
         );
 
         const customerId = session.customer;
@@ -38,6 +48,7 @@ export async function POST(req) {
           });
           if (!user) throw new Error("User not found");
 
+          // If customerId is not already saved, update the user record
           if (!user.customerId) {
             await usersCollection.updateOne(
               { _id: user._id },
@@ -52,6 +63,7 @@ export async function POST(req) {
             const isSubscription = item.price?.type === "recurring";
 
             if (isSubscription) {
+              // Calculate the subscription end date
               let endDate = new Date();
               if (priceId === process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID) {
                 endDate.setFullYear(endDate.getFullYear() + 1);
@@ -63,6 +75,7 @@ export async function POST(req) {
                 throw new Error("Invalid priceId");
               }
 
+              // Update or insert the subscription information
               await subscriptionsCollection.updateOne(
                 { userId: new ObjectId(user._id) },
                 {
@@ -71,7 +84,7 @@ export async function POST(req) {
                     startDate: new Date(),
                     country: session.customer_details.address.country,
                     city: session.customer_details.address.city,
-                    adress: session.customer_details.address.city,
+                    address: session.customer_details.address.city,
                     zipCode: session.customer_details.address.postal_code,
                     endDate: endDate,
                     transactionId: session.invoice,
@@ -91,6 +104,7 @@ export async function POST(req) {
                 { upsert: true }
               );
 
+              // Update the user's plan in the users collection
               await usersCollection.updateOne(
                 { _id: user._id },
                 {
@@ -102,13 +116,13 @@ export async function POST(req) {
                   },
                 }
               );
-            } else {
             }
           }
         }
         break;
       default:
-      //console.log(`Unhandled event type ${event.type}`);
+        // Log unhandled event types
+        console.log(`Unhandled event type ${event.type}`);
     }
   } catch (error) {
     console.error("Error handling event", error);
@@ -118,6 +132,7 @@ export async function POST(req) {
   return new Response("Webhook received", { status: 200 });
 }
 
+// Custom buffer function to get raw request body
 const buffer = (req) => {
   return new Promise((resolve, reject) => {
     const chunks = [];
