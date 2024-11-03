@@ -66,6 +66,7 @@
     "clean-react-props": "^0.4.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
+    "cookie": "^1.0.1",
     "crisp-sdk-web": "^1.0.25",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.13",

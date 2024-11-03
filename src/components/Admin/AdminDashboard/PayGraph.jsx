@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import { Card } from '@/components/ui/card';
-const ReactApexChart = dynamic(() => import('react-apexcharts'), {
+import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { Card } from "@/components/ui/card";
+const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
@@ -18,19 +18,19 @@ const PayGraph = ({ trans, isLoading }) => {
   const revenueChart = {
     series: [
       {
-        name: 'Standard',
+        name: "Standard",
         data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       },
       {
-        name: 'Premium',
+        name: "Premium",
         data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       },
     ],
     options: {
       chart: {
         height: 325,
-        type: 'area',
-        fontFamily: 'Nunito, sans-serif',
+        type: "area",
+        fontFamily: "Nunito, sans-serif",
         zoom: {
           enabled: false,
         },
@@ -44,9 +44,9 @@ const PayGraph = ({ trans, isLoading }) => {
       },
       stroke: {
         show: true,
-        curve: 'smooth',
+        curve: "smooth",
         width: 2,
-        lineCap: 'square',
+        lineCap: "square",
       },
       dropShadow: {
         enabled: true,
@@ -55,26 +55,39 @@ const PayGraph = ({ trans, isLoading }) => {
         left: -7,
         top: 22,
       },
-      colors: ['#1B55E2', '#E7515A'],
+      colors: ["#1B55E2", "#E7515A"],
       markers: {
         discrete: [
           {
             seriesIndex: 0,
             dataPointIndex: 6,
-            fillColor: '#1B55E2',
-            strokeColor: 'transparent',
+            fillColor: "#1B55E2",
+            strokeColor: "transparent",
             size: 7,
           },
           {
             seriesIndex: 1,
             dataPointIndex: 5,
-            fillColor: '#E7515A',
-            strokeColor: 'transparent',
+            fillColor: "#E7515A",
+            strokeColor: "transparent",
             size: 7,
           },
         ],
       },
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      labels: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
       xaxis: {
         axisBorder: {
           show: false,
@@ -89,28 +102,28 @@ const PayGraph = ({ trans, isLoading }) => {
           offsetX: 0,
           offsetY: 5,
           style: {
-            fontSize: '12px',
-            cssClass: 'apexcharts-xaxis-title',
+            fontSize: "12px",
+            cssClass: "apexcharts-xaxis-title",
           },
         },
       },
       yaxis: {
         tickAmount: 7,
         labels: {
-          formatter: value => {
+          formatter: (value) => {
             return value;
           },
           offsetX: -10,
           offsetY: 0,
           style: {
-            fontSize: '12px',
-            cssClass: 'apexcharts-yaxis-title',
+            fontSize: "12px",
+            cssClass: "apexcharts-yaxis-title",
           },
         },
         opposite: false,
       },
       grid: {
-        borderColor: '#E0E6ED',
+        borderColor: "#E0E6ED",
         strokeDashArray: 5,
         xaxis: {
           lines: {
@@ -130,9 +143,9 @@ const PayGraph = ({ trans, isLoading }) => {
         },
       },
       legend: {
-        position: 'top',
-        horizontalAlign: 'right',
-        fontSize: '16px',
+        position: "top",
+        horizontalAlign: "right",
+        fontSize: "16px",
         markers: {
           width: 10,
           height: 10,
@@ -152,7 +165,7 @@ const PayGraph = ({ trans, isLoading }) => {
         },
       },
       fill: {
-        type: 'gradient',
+        type: "gradient",
         gradient: {
           shadeIntensity: 1,
           inverseColors: !1,
@@ -165,16 +178,28 @@ const PayGraph = ({ trans, isLoading }) => {
   };
 
   for (let month = 0; month <= 12; month++) {
-    trans?.forEach(item => {
+    trans?.forEach((item) => {
       if (Number(item?.startDate?.slice(5, 7)) === month) {
         // Filter Standard transactions for the current month
         const tempStandard = trans?.filter(
-          transItem => transItem.plan === 'Standard' && Number(transItem?.startDate?.slice(5, 7)) === month
+          (transItem) =>
+            transItem.plan === "Standard" &&
+            Number(transItem?.startDate?.slice(5, 7)) === month
         );
-        revenueChart.series[0].data[month - 1] = tempStandard.reduce((sum, transItem) => sum + Number(transItem.amount), 0);
+        revenueChart.series[0].data[month - 1] = tempStandard.reduce(
+          (sum, transItem) => sum + Number(transItem.amount),
+          0
+        );
         // Filter Premium transactions for the current month
-        const tempPremium = trans?.filter(transItem => transItem.plan === 'Premium' && Number(transItem?.startDate?.slice(5, 7)) === month);
-        revenueChart.series[1].data[month - 1] = tempPremium.reduce((sum, transItem) => sum + Number(transItem.amount), 0);
+        const tempPremium = trans?.filter(
+          (transItem) =>
+            transItem.plan === "Premium" &&
+            Number(transItem?.startDate?.slice(5, 7)) === month
+        );
+        revenueChart.series[1].data[month - 1] = tempPremium.reduce(
+          (sum, transItem) => sum + Number(transItem.amount),
+          0
+        );
       }
     });
   }
@@ -192,7 +217,13 @@ const PayGraph = ({ trans, isLoading }) => {
           <div className="relative">
             <div className="rounded-lg bg-white dark:bg-transparent">
               {isMounted ? (
-                <ReactApexChart series={revenueChart.series} options={revenueChart.options} type="area" height={325} width={'100%'} />
+                <ReactApexChart
+                  series={revenueChart.series}
+                  options={revenueChart.options}
+                  type="area"
+                  height={325}
+                  width={"100%"}
+                />
               ) : (
                 <div className="grid min-h-[325px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08] ">
                   <span className="inline-flex h-5 w-5 animate-spin rounded-full  border-2 border-black !border-l-transparent dark:border-white"></span>
