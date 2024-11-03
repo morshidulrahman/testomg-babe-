@@ -35,7 +35,7 @@ const useAxiosCommon = () => {
       },
       async (error) => {
         toast({
-          description: "Unauthorized access. Please refresh the page",
+          description: "Unauthorized access",
           variant: "error",
         });
 
